@@ -16,9 +16,44 @@ const posts = (await getCollection('blog')).sort(
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
-			main {
-				width: 960px;
+			main { width: 960px; }
+
+			/* ── Tabs ── */
+			.tabs {
+				display: flex;
+				gap: 0.5rem;
+				margin-bottom: 2rem;
+				border-bottom: 2px solid rgb(var(--gray));
+				padding-bottom: 0;
 			}
+			.tab-btn {
+				background: none;
+				border: none;
+				padding: 0.75rem 1.5rem;
+				font-size: 1.1rem;
+				cursor: pointer;
+				border-radius: 10px 10px 0 0;
+				color: rgb(var(--gray));
+				transition: 0.2s ease;
+				font-family: inherit;
+			}
+			.tab-btn:hover {
+				color: rgb(var(--accent));
+				background: rgb(var(--gray) / 0.08);
+			}
+			.tab-btn.active {
+				color: rgb(var(--accent));
+				background: rgb(var(--gray) / 0.1);
+				font-weight: 700;
+				border-bottom: 3px solid rgb(var(--accent));
+				margin-bottom: -2px;
+			}
+			.tab-count {
+				font-size: 0.75rem;
+				opacity: 0.6;
+				margin-left: 0.3rem;
+			}
+
 			ul {
 				display: flex;
 				flex-wrap: wrap;
@@ -30,28 +65,19 @@ const posts = (await getCollection('blog')).sort(
 			ul li {
 				width: calc(50% - 1rem);
 			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
+			ul li * { text-decoration: none; transition: 0.2s ease; }
 			ul li:first-child {
 				width: 100%;
 				margin-bottom: 1rem;
 				text-align: center;
 			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
+			ul li:first-child img { width: 100%; }
+			ul li:first-child .title { font-size: 2.369rem; }
 			ul li img {
 				margin-bottom: 0.5rem;
 				border-radius: 12px;
 			}
-			ul li a {
-				display: block;
-			}
+			ul li a { display: block; }
 			.title {
 				margin: 0;
 				color: rgb(var(--black));
@@ -62,26 +88,17 @@ const posts = (await getCollection('blog')).sort(
 				color: rgb(var(--gray));
 			}
 			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
+			ul li a:hover .date { color: rgb(var(--accent)); }
+			ul a:hover img { box-shadow: var(--box-shadow); }
+
 			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
+				main { width: 100%; }
+				ul { gap: 0.5em; }
+				ul li { width: 100%; text-align: center; }
+				ul li:first-child { margin-bottom: 0; }
+				ul li:first-child .title { font-size: 1.563em; }
+				.tabs { overflow-x: auto; }
+				.tab-btn { padding: 0.6rem 1rem; font-size: 1rem; white-space: nowrap; }
 			}
 		</style>
 	</head>
@@ -89,10 +106,17 @@ const posts = (await getCollection('blog')).sort(
 		<Header />
 		<main>
 			<section>
-				<ul>
+				<div class="tabs" role="tablist">
+					<button class="tab-btn active" data-cat="all" role="tab" aria-selected="true">全部 ({posts.length})</button>
+					<button class="tab-btn" data-cat="funny" role="tab">🥜 花生趣聞 ({posts.filter(p => p.data.category === 'funny').length})</button>
+					<button class="tab-btn" data-cat="hk-life" role="tab">🏠 港生活 ({posts.filter(p => p.data.category === 'hk-life').length})</button>
+					<button class="tab-btn" data-cat="tech" role="tab">💻 科技網絡 ({posts.filter(p => p.data.category === 'tech').length})</button>
+				</div>
+
+				<ul id="post-list">
 					{
 						posts.map((post) => (
-							<li>
+							<li data-category={post.data.category || 'uncategorized'}>
 								<a href={`/blog/${post.id}/`}>
 									{post.data.heroImage && (
 										<img width={720} height={360} src={post.data.heroImage} alt="" />
@@ -109,5 +133,48 @@ const posts = (await getCollection('blog')).sort(
 			</section>
 		</main>
 		<Footer />
+
+		<script>
+			// ── Tab filtering ──
+			const tabs = document.querySelectorAll('.tab-btn');
+			const items = document.querySelectorAll('#post-list li');
+
+			function filter(cat) {
+				tabs.forEach(t => {
+					t.classList.toggle('active', t.dataset.cat === cat);
+					t.setAttribute('aria-selected', t.dataset.cat === cat);
+				});
+				// reset first-child styling
+				items.forEach((li, i) => {
+					const hide = cat !== 'all' && li.dataset.category !== cat;
+					li.style.display = hide ? 'none' : '';
+					// re-apply first-child styles visually
+					const firstVisible = [...items].findIndex(l => l.style.display !== 'none');
+					li.style.textAlign = '';
+					li.style.width = '';
+					if (!hide && i === firstVisible && cat !== 'all') {
+						li.style.textAlign = 'center';
+						li.style.width = '100%';
+					}
+				});
+			}
+
+			tabs.forEach(tab => {
+				tab.addEventListener('click', () => filter(tab.dataset.cat));
+			});
+
+			// Read URL hash on load
+			const hash = location.hash.slice(1) || 'all';
+			if (['all','funny','hk-life','tech'].includes(hash)) {
+				filter(hash);
+			}
+
+			// Update hash on click
+			tabs.forEach(tab => {
+				tab.addEventListener('click', () => {
+					history.replaceState(null, '', tab.dataset.cat === 'all' ? location.pathname : '#' + tab.dataset.cat);
+				});
+			});
+		</script>
 	</body>
 </html>

@@ -3,7 +3,8 @@ title: 'AI 唔會取代你份工，但係用 AI 嘅人會'
 description: '成日聽到人話 AI 會取代工作，但現實係啲公司寧願請個識用 AI 嘅人，都唔會請個抗拒科技嘅人。'
 pubDate: 'Jun 17 2026'
 updatedDate: 'Jun 17 2026'
-heroImage: '/blog-placeholder-1.jpg'
+heroImage: '/blog-placeholder-5.jpg'
+category: 'tech'
 ---
 
 最近周圍都有人講 ChatGPT、Claude、Midjourney 呢啲 AI 工具，好多人驚 AI 會搶走佢哋份工。但現實係點？不如我哋睇下幾個例子。

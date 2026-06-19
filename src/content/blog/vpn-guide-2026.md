@@ -3,7 +3,8 @@ title: '香港人點樣用 VPN 先係最安全？2026 年最新指南'
 description: 'VPN 愈來愈普及，但你識唔識分邊啲 VPN 真係安全？本文同你分析免費 VPN 嘅風險，同推薦幾款可靠嘅選擇。'
 pubDate: 'Jun 16 2026'
 updatedDate: 'Jun 16 2026'
-heroImage: '/blog-placeholder-2.jpg'
+heroImage: '/blog-placeholder-1.jpg'
+category: 'tech'
 ---
 
 自從香港網絡限制愈來愈多，VPN 幾乎成為咗香港人嘅必需品。但係市面咁多 VPN，點揀先至安全？
