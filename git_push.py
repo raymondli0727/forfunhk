@@ -1,31 +1,20 @@
 #!/usr/bin/env python3
-"""Git push using correct repo path."""
+"""Git push using token from environment."""
 import subprocess
-import urllib.request
-import urllib.error
-import json
+import sys
+import os
 
-parts = ["ghp_oT", "dSA8xT", "5QxuWc", "EYnHKI", "RVgiCm", "B3jY3L", "XFef"]
-token = "".join(parts)
+token = os.environ.get("GH_TOKEN", "")
+if not token:
+    print("ERROR: GH_TOKEN environment variable not set")
+    sys.exit(1)
 
-# Commit
-subprocess.run(
-    ['git', '-C', '/root/forfunhk', 'commit', '-m', 'Add article: Starbucks HK layoff 60 jobs - 2026-06-21'], 
-    capture_output=True
-)
+repo = "/root/forfunhk"
+remote_url = f"https://raymondli0727:{token}@github.com/raymondli0727/forfunhk.git"
+subprocess.run(["git", "-C", repo, "remote", "set-url", "origin", remote_url], capture_output=True)
 
-# Set remote URL to the actual repo path
-remote_url = 'https://raymondli0727:' + token + '@github.com/raymondli0727/forfunhk.git'
-subprocess.run(
-    ['git', '-C', '/root/forfunhk', 'remote', 'set-url', 'origin', remote_url],
-    capture_output=True, text=True
-)
-
-# Push
-result = subprocess.run(
-    ['git', '-C', '/root/forfunhk', 'push', 'origin', 'main'],
-    capture_output=True, text=True
-)
-print("PUSH STDOUT:", result.stdout)
-print("PUSH STDERR:", result.stderr)
+result = subprocess.run(["git", "-C", repo, "push", "origin", "main"], capture_output=True, text=True)
+print("PUSH STDOUT:", result.stdout.strip())
+print("PUSH STDERR:", result.stderr.strip())
 print("PUSH EXIT:", result.returncode)
+sys.exit(result.returncode)
